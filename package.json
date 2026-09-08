@@ -9,7 +9,11 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@insforge/sdk": "^1.5.2",
+    "nanoid": "^6.0.1",
     "next": "16.3.4",
+    "page-flip": "^2.0.7",
+    "pdfjs-dist": "^6.3.289",
     "react": "19.2.8",
     "react-dom": "19.2.8"
   },
