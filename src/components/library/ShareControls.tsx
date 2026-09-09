@@ -4,8 +4,10 @@ import { useState } from "react";
 import { insforge } from "@/lib/insforge/client";
 import { newShareSlug } from "@/lib/share";
 import type { Book } from "@/types/book";
+import { useLocale } from "@/components/layout/LocaleProvider";
 
 export function ShareControls({ book }: { book: Book }) {
+  const { t } = useLocale();
   const [isPublic, setIsPublic] = useState(book.is_public);
   const [slug, setSlug] = useState(book.share_slug);
   const [copied, setCopied] = useState(false);
@@ -60,11 +62,11 @@ export function ShareControls({ book }: { book: Book }) {
   return (
     <div className="flex w-full min-w-0 flex-wrap items-center gap-2">
       <button type="button" className="toolbar-btn" disabled={busy} onClick={() => void copyLink()}>
-        {copied ? "Enlace copiado" : busy ? "Creando enlace…" : "Compartir"}
+        {copied ? t.share.copied : busy ? t.share.creating : t.share.share}
       </button>
       {isPublic ? (
         <button type="button" className="toolbar-btn" onClick={() => void setPublic(false)}>
-          Revocar enlace
+          {t.share.revoke}
         </button>
       ) : null}
       {isPublic && shareUrl ? (

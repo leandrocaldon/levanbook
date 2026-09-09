@@ -2,9 +2,11 @@
 
 import { createScope, createTimeline } from "animejs";
 import { useEffect, useRef } from "react";
+import { useLocale } from "@/components/layout/LocaleProvider";
 
 export function LandingMotion() {
   const root = useRef<HTMLDivElement>(null);
+  const { t } = useLocale();
 
   useEffect(() => {
     if (!root.current) return;
@@ -102,51 +104,51 @@ export function LandingMotion() {
 
   return (
     <div ref={root} className="demo-stage">
-      <p className="demo-step demo-step-1">1. Añade un PDF a tu biblioteca</p>
-      <p className="demo-step demo-step-2">2. Hojéalo como un libro</p>
-      <p className="demo-step demo-step-3">3. Comparte un enlace público</p>
+      <p className="demo-step demo-step-1">{t.landing.step1}</p>
+      <p className="demo-step demo-step-2">{t.landing.step2}</p>
+      <p className="demo-step demo-step-3">{t.landing.step3}</p>
 
       <div className="demo-upload" aria-hidden>
         <div className="demo-file">
           <span className="demo-file-badge">PDF</span>
           <strong>catalogo.pdf</strong>
-          <small>2.4 MB · 18 páginas</small>
+          <small>{t.landing.fileMeta("2.4 MB", 18)}</small>
         </div>
         <div className="demo-drop">
-          <strong>Añadir un PDF</strong>
-          <span>Hasta 100 MB. Se guarda en tu biblioteca.</span>
+          <strong>{t.landing.addPdf}</strong>
+          <span>{t.landing.addPdfHint}</span>
         </div>
       </div>
 
       <div className="demo-book" aria-hidden>
         <div className="demo-spread">
           <div className="demo-page demo-page-left">
-            <em>Catálogo 2026</em>
-            <p>Fichas de producto listas para leer en pantalla, página a página.</p>
-            <p className="demo-muted">Pág. 8</p>
+            <em>{t.landing.catalogTitle}</em>
+            <p>{t.landing.catalogBody}</p>
+            <p className="demo-muted">{t.landing.pageShort(8)}</p>
           </div>
           <div className="demo-leaf">
             <div className="demo-page demo-page-front">
-              <em>Detalle</em>
-              <p>Pasa la hoja con el mismo gesto que un libro impreso.</p>
-              <p className="demo-muted">Pág. 9</p>
+              <em>{t.landing.detailTitle}</em>
+              <p>{t.landing.detailBody}</p>
+              <p className="demo-muted">{t.landing.pageShort(9)}</p>
             </div>
             <div className="demo-page demo-page-back">
-              <em>Biblioteca</em>
-              <p>Queda guardado en tu cuenta para abrirlo cuando quieras.</p>
-              <p className="demo-muted">Pág. 10</p>
+              <em>{t.landing.libraryTitle}</em>
+              <p>{t.landing.libraryBody}</p>
+              <p className="demo-muted">{t.landing.pageShort(10)}</p>
             </div>
           </div>
         </div>
         <div className="demo-toolbar">
-          <span>Anterior</span>
-          <span className="demo-page-num">Página 8 de 18</span>
-          <span className="demo-share-btn">Compartir</span>
+          <span>{t.landing.previous}</span>
+          <span className="demo-page-num">{t.landing.pageOf(8, 18)}</span>
+          <span className="demo-share-btn">{t.landing.share}</span>
         </div>
       </div>
 
       <div className="demo-share">
-        <span>Enlace copiado</span>
+        <span>{t.landing.linkCopied}</span>
         <code>/b/catalogo7xk</code>
       </div>
     </div>

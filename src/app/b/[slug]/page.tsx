@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { BookViewer } from "@/components/flipbook/BookViewer";
 import { createInsForgeServerClient } from "@/lib/insforge/server";
+import { getDictionary, getLocale } from "@/lib/i18n";
 import type { Book } from "@/types/book";
 
 export default async function PublicBookPage({
@@ -9,6 +10,7 @@ export default async function PublicBookPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  const t = getDictionary(await getLocale());
   const client = await createInsForgeServerClient();
   const { data, error } = await client.database
     .from("books")
@@ -25,7 +27,7 @@ export default async function PublicBookPage({
   return (
     <section className="flex flex-col gap-5">
       <div>
-        <p className="text-xs uppercase tracking-[0.24em] text-ink/45">Lectura compartida</p>
+        <p className="text-xs uppercase tracking-[0.24em] text-ink/45">{t.publicRead.eyebrow}</p>
         <h1 className="font-serif text-2xl break-words text-ink sm:text-4xl">{book.title}</h1>
       </div>
       <BookViewer storageKey={book.storage_key} title={book.title} publicSlug={slug} />

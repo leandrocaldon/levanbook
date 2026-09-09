@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { BookViewer } from "@/components/flipbook/BookViewer";
 import { ShareControls } from "@/components/library/ShareControls";
 import { createInsForgeServerClient, getCurrentUser } from "@/lib/insforge/server";
+import { getDictionary, getLocale } from "@/lib/i18n";
 import type { Book } from "@/types/book";
 
 export default async function ReadPage({
@@ -13,6 +14,7 @@ export default async function ReadPage({
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
+  const t = getDictionary(await getLocale());
   const client = await createInsForgeServerClient();
   const { data, error } = await client.database
     .from("books")
@@ -30,7 +32,7 @@ export default async function ReadPage({
     <section className="flex flex-col gap-5">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.24em] text-ink/45">Lectura</p>
+          <p className="text-xs uppercase tracking-[0.24em] text-ink/45">{t.read.eyebrow}</p>
           <h1 className="font-serif text-2xl break-words text-ink sm:text-4xl">{book.title}</h1>
         </div>
         <ShareControls book={book} />

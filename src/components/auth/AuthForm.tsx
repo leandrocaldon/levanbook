@@ -8,12 +8,14 @@ import {
   signUpAction,
   verifyEmailAction,
 } from "@/app/actions/auth";
+import { useLocale } from "@/components/layout/LocaleProvider";
 
 type AuthFormProps = {
   mode: "login" | "signup";
 };
 
 export function AuthForm({ mode }: AuthFormProps) {
+  const { t } = useLocale();
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [verifyEmail, setVerifyEmail] = useState<string | null>(null);
@@ -31,7 +33,7 @@ export function AuthForm({ mode }: AuthFormProps) {
     if (!result) return;
     if ("needsVerification" in result && result.needsVerification && result.email) {
       setVerifyEmail(result.email);
-      setNotice("Te enviamos un código de 6 dígitos. Revísalo en tu correo.");
+      setNotice(t.auth.codeNotice);
       return;
     }
     if (result.error) setError(result.error);
@@ -48,24 +50,24 @@ export function AuthForm({ mode }: AuthFormProps) {
   if (verifyEmail) {
     return (
       <form action={onVerify} className="auth-card">
-        <h1 className="font-serif text-3xl text-ink">Confirma tu correo</h1>
-        <p className="text-sm text-ink/65">Código enviado a {verifyEmail}</p>
+        <h1 className="font-serif text-3xl text-ink">{t.auth.verifyTitle}</h1>
+        <p className="text-sm text-ink/65">{t.auth.verifySent(verifyEmail)}</p>
         <input type="hidden" name="email" value={verifyEmail} />
         <label className="field">
-          Código
+          {t.auth.code}
           <input name="otp" inputMode="numeric" maxLength={6} required className="input" />
         </label>
         {error ? <p className="text-sm text-red-400">{error}</p> : null}
         {notice ? <p className="text-sm text-forest">{notice}</p> : null}
         <button type="submit" className="btn-primary w-full" disabled={pending}>
-          {pending ? "Verificando…" : "Verificar y entrar"}
+          {pending ? t.auth.verifying : t.auth.verifySubmit}
         </button>
         <button
           type="button"
           className="text-sm text-ink/60 underline"
           onClick={() => void resendVerificationAction(verifyEmail)}
         >
-          Reenviar código
+          {t.auth.resendCode}
         </button>
       </form>
     );
@@ -74,25 +76,23 @@ export function AuthForm({ mode }: AuthFormProps) {
   return (
     <form action={onSubmit} className="auth-card">
       <h1 className="font-serif text-3xl text-ink">
-        {mode === "login" ? "Entrar a Levanbook" : "Crear tu biblioteca"}
+        {mode === "login" ? t.auth.loginTitle : t.auth.signupTitle}
       </h1>
       <p className="text-sm text-ink/65">
-        {mode === "login"
-          ? "Abre tus documentos y sigue leyendo donde lo dejaste."
-          : "Guarda PDFs, hojéalos y comparte un enlace de lectura."}
+        {mode === "login" ? t.auth.loginSubtitle : t.auth.signupSubtitle}
       </p>
       {mode === "signup" ? (
         <label className="field">
-          Nombre
+          {t.auth.name}
           <input name="name" autoComplete="name" className="input" />
         </label>
       ) : null}
       <label className="field">
-        Correo
+        {t.auth.email}
         <input name="email" type="email" autoComplete="email" required className="input" />
       </label>
       <label className="field">
-        Contraseña
+        {t.auth.password}
         <div className="relative">
           <input
             name="password"
@@ -106,7 +106,7 @@ export function AuthForm({ mode }: AuthFormProps) {
             type="button"
             className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-ink/55 hover:bg-ink/5 hover:text-ink"
             onClick={() => setShowPassword((visible) => !visible)}
-            aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+            aria-label={showPassword ? t.auth.hidePassword : t.auth.showPassword}
             aria-pressed={showPassword}
           >
             {showPassword ? (
@@ -136,21 +136,21 @@ export function AuthForm({ mode }: AuthFormProps) {
       </label>
       {error ? <p className="text-sm text-red-400">{error}</p> : null}
       <button type="submit" className="btn-primary w-full" disabled={pending}>
-        {pending ? "Un momento…" : mode === "login" ? "Entrar" : "Crear cuenta"}
+        {pending ? t.auth.pending : mode === "login" ? t.auth.loginSubmit : t.auth.signupSubmit}
       </button>
       <p className="text-sm text-ink/60">
         {mode === "login" ? (
           <>
-            ¿No tienes cuenta?{" "}
+            {t.auth.noAccount}{" "}
             <Link href="/signup" className="underline">
-              Regístrate
+              {t.auth.signupLink}
             </Link>
           </>
         ) : (
           <>
-            ¿Ya tienes cuenta?{" "}
+            {t.auth.hasAccount}{" "}
             <Link href="/login" className="underline">
-              Entra
+              {t.auth.loginLink}
             </Link>
           </>
         )}

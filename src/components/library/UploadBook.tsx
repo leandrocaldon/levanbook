@@ -6,9 +6,11 @@ import { BOOKS_BUCKET, LARGE_BOOK_PAGES, MAX_PDF_BYTES } from "@/lib/constants";
 import { newShareSlug } from "@/lib/share";
 import { insforge } from "@/lib/insforge/client";
 import { loadPdf, renderCoverBlob } from "@/lib/pdf/engine";
+import { useLocale } from "@/components/layout/LocaleProvider";
 
 export function UploadBook({ userId }: { userId: string }) {
   const router = useRouter();
+  const { t } = useLocale();
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -19,17 +21,17 @@ export function UploadBook({ userId }: { userId: string }) {
     setMessage(null);
 
     if (file.type !== "application/pdf") {
-      setError("Solo se aceptan archivos PDF.");
+      setError(t.upload.pdfOnly);
       return;
     }
     if (file.size > MAX_PDF_BYTES) {
-      setError("El PDF no puede superar 100 MB.");
+      setError(t.upload.tooLarge);
       return;
     }
 
     setBusy(true);
     try {
-      setMessage("Leyendo el documento…");
+      setMessage(t.upload.reading);
       const buffer = await file.arrayBuffer();
       const pdf = await loadPdf(buffer.slice(0));
       const pageCount = pdf.numPages;
@@ -40,7 +42,7 @@ export function UploadBook({ userId }: { userId: string }) {
       const pdfKey = `${userId}/${bookId}/document.pdf`;
       const coverKey = `${userId}/${bookId}/cover.jpg`;
 
-      setMessage("Subiendo el PDF…");
+      setMessage(t.upload.uploading);
       const uploaded = await insforge.storage.from(BOOKS_BUCKET).upload(pdfKey, file);
       if (uploaded.error) throw new Error(uploaded.error.message);
 
@@ -68,14 +70,14 @@ export function UploadBook({ userId }: { userId: string }) {
       if (insertError) throw new Error(insertError.message);
 
       if (pageCount > LARGE_BOOK_PAGES) {
-        setMessage(`Listo. El libro tiene ${pageCount} páginas; el visor las carga poco a poco.`);
+        setMessage(t.upload.largeBook(pageCount));
       } else {
-        setMessage("Documento guardado.");
+        setMessage(t.upload.saved);
       }
       router.push(`/read/${bookId}`);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "No se pudo subir el documento.");
+      setError(err instanceof Error ? err.message : t.upload.uploadFailed);
     } finally {
       setBusy(false);
     }
@@ -83,8 +85,8 @@ export function UploadBook({ userId }: { userId: string }) {
 
   return (
     <label className="flex cursor-pointer flex-col gap-2 rounded-2xl border border-dashed border-ink/20 bg-cream/80 px-4 py-6 text-center sm:rounded-3xl sm:px-6 sm:py-8">
-      <span className="font-serif text-2xl text-ink">Añadir un PDF</span>
-      <span className="text-sm text-ink/60">Hasta 100 MB. Se guarda en tu biblioteca.</span>
+      <span className="font-serif text-2xl text-ink">{t.upload.title}</span>
+      <span className="text-sm text-ink/60">{t.upload.hint}</span>
       <input
         type="file"
         accept="application/pdf"
@@ -92,7 +94,7 @@ export function UploadBook({ userId }: { userId: string }) {
         disabled={busy}
         onChange={(event) => void onFile(event.target.files?.[0])}
       />
-      {busy ? <span className="text-sm text-forest">{message ?? "Trabajando…"}</span> : null}
+      {busy ? <span className="text-sm text-forest">{message ?? t.upload.working}</span> : null}
       {error ? <span className="text-sm text-red-400">{error}</span> : null}
     </label>
   );

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { PDFDocumentProxy } from "pdfjs-dist";
 import { getPageAspect, loadPdf, renderPageToCanvas } from "@/lib/pdf/engine";
+import { useLocale } from "@/components/layout/LocaleProvider";
 import "page-flip/src/Style/stPageFlip.css";
 
 type PdfFlipBookProps = {
@@ -10,9 +11,12 @@ type PdfFlipBookProps = {
   title?: string;
 };
 
+type LoadPhase = "opening" | "reading" | "ready";
+
 const RENDER_WINDOW = 3;
 
 export function PdfFlipBook({ source, title }: PdfFlipBookProps) {
+  const { t } = useLocale();
   const stageRef = useRef<HTMLDivElement>(null);
   const pageNodesRef = useRef<HTMLElement[]>([]);
   const flipRef = useRef<import("page-flip").PageFlip | null>(null);
@@ -20,31 +24,33 @@ export function PdfFlipBook({ source, title }: PdfFlipBookProps) {
   const rendered = useRef(new Set<number>());
   const [pageCount, setPageCount] = useState(0);
   const [current, setCurrent] = useState(1);
-  const [status, setStatus] = useState("Abriendo el documento…");
+  const [phase, setPhase] = useState<LoadPhase>("opening");
   const [error, setError] = useState<string | null>(null);
-  const [ready, setReady] = useState(false);
 
-  const paintNearby = useCallback(async (index: number) => {
-    const pdf = pdfRef.current;
-    const nodes = pageNodesRef.current;
-    if (!pdf || nodes.length === 0) return;
+  const paintNearby = useCallback(
+    async (index: number) => {
+      const pdf = pdfRef.current;
+      const nodes = pageNodesRef.current;
+      if (!pdf || nodes.length === 0) return;
 
-    const start = Math.max(1, index - RENDER_WINDOW);
-    const end = Math.min(pdf.numPages, index + RENDER_WINDOW);
+      const start = Math.max(1, index - RENDER_WINDOW);
+      const end = Math.min(pdf.numPages, index + RENDER_WINDOW);
 
-    for (let page = start; page <= end; page += 1) {
-      if (rendered.current.has(page)) continue;
-      const node = nodes[page - 1];
-      const image = node?.querySelector("img");
-      if (!image) continue;
+      for (let page = start; page <= end; page += 1) {
+        if (rendered.current.has(page)) continue;
+        const node = nodes[page - 1];
+        const image = node?.querySelector("img");
+        if (!image) continue;
 
-      const canvas = document.createElement("canvas");
-      await renderPageToCanvas(pdf, page, canvas, 900);
-      image.src = canvas.toDataURL("image/jpeg", 0.88);
-      image.alt = `Página ${page}`;
-      rendered.current.add(page);
-    }
-  }, []);
+        const canvas = document.createElement("canvas");
+        await renderPageToCanvas(pdf, page, canvas, 900);
+        image.src = canvas.toDataURL("image/jpeg", 0.88);
+        image.alt = t.viewer.pageLabel(page);
+        rendered.current.add(page);
+      }
+    },
+    [t.viewer],
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -56,9 +62,9 @@ export function PdfFlipBook({ source, title }: PdfFlipBookProps) {
       if (!stage) return;
 
       try {
-        setReady(false);
+        setPhase("opening");
         setError(null);
-        setStatus("Leyendo páginas…");
+        setPhase("reading");
         const pdf = await loadPdf(source.slice(0));
         if (cancelled) return;
         pdfRef.current = pdf;
@@ -70,7 +76,7 @@ export function PdfFlipBook({ source, title }: PdfFlipBookProps) {
           const page = document.createElement("div");
           page.className = "flip-page";
           page.dataset.density = i === 1 || i === pdf.numPages ? "hard" : "soft";
-          page.innerHTML = `<img class="flip-page-image" alt="Página ${i}" />`;
+          page.innerHTML = `<img class="flip-page-image" alt="${t.viewer.pageLabel(i)}" />`;
           nodes.push(page);
         }
         pageNodesRef.current = nodes;
@@ -128,12 +134,11 @@ export function PdfFlipBook({ source, title }: PdfFlipBookProps) {
 
         flipRef.current = flip;
         if (!cancelled) {
-          setReady(true);
-          setStatus("");
+          setPhase("ready");
         }
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : "No se pudo abrir el PDF.");
+          setError(err instanceof Error ? err.message : t.viewer.openFailed);
         }
       }
     }
@@ -152,13 +157,16 @@ export function PdfFlipBook({ source, title }: PdfFlipBookProps) {
       void pdfRef.current?.cleanup();
       pdfRef.current = null;
     };
-  }, [source, paintNearby]);
+  }, [source, paintNearby, t.viewer]);
 
-  const prefetchAround = useCallback((pageIndex: number) => {
-    void paintNearby(pageIndex);
-    void paintNearby(pageIndex + 1);
-    void paintNearby(pageIndex - 1);
-  }, [paintNearby]);
+  const prefetchAround = useCallback(
+    (pageIndex: number) => {
+      void paintNearby(pageIndex);
+      void paintNearby(pageIndex + 1);
+      void paintNearby(pageIndex - 1);
+    },
+    [paintNearby],
+  );
 
   const flipNext = useCallback(() => {
     const flip = flipRef.current;
@@ -193,6 +201,13 @@ export function PdfFlipBook({ source, title }: PdfFlipBookProps) {
     await node.requestFullscreen();
   }
 
+  const statusText =
+    phase === "ready"
+      ? t.viewer.pageOf(current, pageCount)
+      : phase === "reading"
+        ? t.viewer.reading
+        : t.viewer.opening;
+
   if (error) {
     return (
       <div className="rounded-2xl border border-red-500/30 bg-red-950/50 px-5 py-4 text-sm text-red-200">
@@ -205,21 +220,19 @@ export function PdfFlipBook({ source, title }: PdfFlipBookProps) {
     <div className="flex w-full flex-col gap-4">
       <div className="flex flex-col gap-3 rounded-2xl bg-cream/90 px-3 py-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-4">
         <div className="min-w-0">
-          <p className="truncate font-serif text-base text-ink sm:text-lg">{title ?? "Documento"}</p>
-          <p className="text-xs tracking-wide text-ink/55">
-            {ready ? `Página ${current} de ${pageCount}` : status}
-          </p>
+          <p className="truncate font-serif text-base text-ink sm:text-lg">{title ?? t.viewer.document}</p>
+          <p className="text-xs tracking-wide text-ink/55">{statusText}</p>
         </div>
         <div className="grid grid-cols-3 gap-2 sm:flex sm:items-center">
           <button type="button" className="toolbar-btn min-h-11 w-full justify-center px-2 text-xs sm:w-auto sm:text-sm" onClick={flipPrev}>
-            Anterior
+            {t.viewer.previous}
           </button>
           <button type="button" className="toolbar-btn min-h-11 w-full justify-center px-2 text-xs sm:w-auto sm:text-sm" onClick={flipNext}>
-            Siguiente
+            {t.viewer.next}
           </button>
           <button type="button" className="toolbar-btn min-h-11 w-full justify-center px-2 text-xs sm:w-auto sm:text-sm" onClick={() => void toggleFullscreen()}>
-            <span className="sm:hidden">Pantalla</span>
-            <span className="hidden sm:inline">Pantalla completa</span>
+            <span className="sm:hidden">{t.viewer.fullscreenShort}</span>
+            <span className="hidden sm:inline">{t.viewer.fullscreen}</span>
           </button>
         </div>
       </div>

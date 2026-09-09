@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { BOOKS_BUCKET } from "@/lib/constants";
 import { insforge } from "@/lib/insforge/client";
 import { PdfFlipBook } from "@/components/flipbook/PdfFlipBook";
+import { useLocale } from "@/components/layout/LocaleProvider";
 
 type BookViewerProps = {
   storageKey: string;
@@ -12,6 +13,7 @@ type BookViewerProps = {
 };
 
 export function BookViewer({ storageKey, title, publicSlug }: BookViewerProps) {
+  const { t } = useLocale();
   const [source, setSource] = useState<ArrayBuffer | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,7 +25,7 @@ export function BookViewer({ storageKey, title, publicSlug }: BookViewerProps) {
         if (!active) return;
         if (!response.ok) {
           const payload = (await response.json().catch(() => null)) as { error?: string } | null;
-          setError(payload?.error ?? "No se pudo descargar el PDF.");
+          setError(payload?.error ?? t.viewer.downloadFailed);
           return;
         }
         setSource(await response.arrayBuffer());
@@ -35,7 +37,7 @@ export function BookViewer({ storageKey, title, publicSlug }: BookViewerProps) {
         .download(storageKey);
       if (!active) return;
       if (downloadError || !data) {
-        setError(downloadError?.message ?? "No se pudo descargar el PDF.");
+        setError(downloadError?.message ?? t.viewer.downloadFailed);
         return;
       }
       setSource(await data.arrayBuffer());
@@ -44,7 +46,7 @@ export function BookViewer({ storageKey, title, publicSlug }: BookViewerProps) {
     return () => {
       active = false;
     };
-  }, [publicSlug, storageKey]);
+  }, [publicSlug, storageKey, t.viewer.downloadFailed]);
 
   if (error) {
     return (
@@ -55,7 +57,7 @@ export function BookViewer({ storageKey, title, publicSlug }: BookViewerProps) {
   }
 
   if (!source) {
-    return <p className="text-sm text-ink/60">Preparando el libro…</p>;
+    return <p className="text-sm text-ink/60">{t.viewer.preparing}</p>;
   }
 
   return <PdfFlipBook source={source} title={title} />;

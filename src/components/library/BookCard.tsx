@@ -1,8 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
+import { getDictionary, getLocale } from "@/lib/i18n";
 import type { Book } from "@/types/book";
 
-export function BookCard({ book }: { book: Book }) {
+export async function BookCard({ book }: { book: Book }) {
+  const t = getDictionary(await getLocale());
+
   return (
     <Link
       href={`/read/${book.id}`}
@@ -27,8 +30,8 @@ export function BookCard({ book }: { book: Book }) {
       <div className="px-3 py-3 sm:px-4 sm:py-4">
         <h2 className="line-clamp-2 font-serif text-base text-ink sm:text-lg">{book.title}</h2>
         <p className="mt-1 text-xs uppercase tracking-[0.16em] text-ink/45">
-          {book.page_count} páginas
-          {book.is_public ? " · Público" : ""}
+          {t.bookCard.pages(book.page_count)}
+          {book.is_public ? t.bookCard.public : ""}
         </p>
       </div>
     </Link>
