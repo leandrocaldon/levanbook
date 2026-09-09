@@ -58,7 +58,7 @@ export function ShareControls({ book }: { book: Book }) {
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="flex w-full min-w-0 flex-wrap items-center gap-2">
       <button type="button" className="toolbar-btn" disabled={busy} onClick={() => void copyLink()}>
         {copied ? "Enlace copiado" : busy ? "Creando enlace…" : "Compartir"}
       </button>
@@ -68,11 +68,11 @@ export function ShareControls({ book }: { book: Book }) {
         </button>
       ) : null}
       {isPublic && shareUrl ? (
-        <a href={shareUrl} className="text-xs text-ink/50 underline" target="_blank" rel="noreferrer">
+        <a href={shareUrl} className="max-w-full truncate text-xs text-ink/50 underline" target="_blank" rel="noreferrer">
           {shareUrl}
         </a>
       ) : null}
-      {error ? <span className="text-xs text-red-700">{error}</span> : null}
+      {error ? <span className="text-xs text-red-400">{error}</span> : null}
     </div>
   );
 }

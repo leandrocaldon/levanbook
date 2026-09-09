@@ -6,18 +6,21 @@ export async function Header() {
   const user = await getCurrentUser();
 
   return (
-    <header className="sticky top-0 z-30 border-b border-[rgba(46,33,18,0.08)] bg-[rgba(250,246,239,0.86)] backdrop-blur-md">
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-5 py-4">
-        <Link href={user ? "/library" : "/"} className="font-serif text-2xl tracking-tight text-ink">
+    <header className="sticky top-0 z-30 border-b border-ink/10 bg-paper/90 pt-[env(safe-area-inset-top)] backdrop-blur-md">
+      <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-4">
+        <Link
+          href={user ? "/library" : "/"}
+          className="shrink-0 font-serif text-xl tracking-tight text-ink sm:text-2xl"
+        >
           Levanbook
         </Link>
-        <nav className="flex items-center gap-3 text-sm">
-          <Link href="/try" className="text-ink/70 hover:text-ink">
+        <nav className="flex min-w-0 items-center gap-2 text-sm sm:gap-3">
+          <Link href="/try" className="px-1 py-2 text-ink/70 hover:text-ink">
             Probar
           </Link>
           {user ? (
             <>
-              <Link href="/library" className="text-ink/70 hover:text-ink">
+              <Link href="/library" className="hidden px-1 py-2 text-ink/70 hover:text-ink sm:inline">
                 Biblioteca
               </Link>
               <form action={signOutAction}>
@@ -28,11 +31,12 @@ export async function Header() {
             </>
           ) : (
             <>
-              <Link href="/login" className="text-ink/70 hover:text-ink">
+              <Link href="/login" className="px-1 py-2 text-ink/70 hover:text-ink">
                 Entrar
               </Link>
-              <Link href="/signup" className="btn-primary">
-                Crear cuenta
+              <Link href="/signup" className="btn-primary !px-3 !py-2 text-sm sm:!px-[1.15rem] sm:!py-[0.7rem]">
+                <span className="sm:hidden">Crear</span>
+                <span className="hidden sm:inline">Crear cuenta</span>
               </Link>
             </>
           )}

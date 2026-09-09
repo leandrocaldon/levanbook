@@ -82,7 +82,7 @@ export function UploadBook({ userId }: { userId: string }) {
   }
 
   return (
-    <label className="flex cursor-pointer flex-col gap-2 rounded-3xl border border-dashed border-[rgba(46,33,18,0.22)] bg-[rgba(255,250,242,0.7)] px-6 py-8 text-center">
+    <label className="flex cursor-pointer flex-col gap-2 rounded-2xl border border-dashed border-ink/20 bg-cream/80 px-4 py-6 text-center sm:rounded-3xl sm:px-6 sm:py-8">
       <span className="font-serif text-2xl text-ink">Añadir un PDF</span>
       <span className="text-sm text-ink/60">Hasta 100 MB. Se guarda en tu biblioteca.</span>
       <input
@@ -93,7 +93,7 @@ export function UploadBook({ userId }: { userId: string }) {
         onChange={(event) => void onFile(event.target.files?.[0])}
       />
       {busy ? <span className="text-sm text-forest">{message ?? "Trabajando…"}</span> : null}
-      {error ? <span className="text-sm text-red-700">{error}</span> : null}
+      {error ? <span className="text-sm text-red-400">{error}</span> : null}
     </label>
   );
 }

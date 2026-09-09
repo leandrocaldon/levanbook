@@ -35,7 +35,7 @@ export function BookViewer({ storageKey, title }: BookViewerProps) {
 
   if (error) {
     return (
-      <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-800">
+      <div className="rounded-2xl border border-red-500/30 bg-red-950/50 px-5 py-4 text-sm text-red-200">
         {error}
       </div>
     );

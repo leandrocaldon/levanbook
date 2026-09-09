@@ -28,7 +28,7 @@ export function LocalViewer() {
 
   return (
     <div className="flex flex-col gap-6">
-      <label className="flex cursor-pointer flex-col items-center gap-2 rounded-3xl border border-dashed border-[rgba(46,33,18,0.22)] bg-[rgba(255,250,242,0.7)] px-6 py-8 text-center">
+      <label className="flex cursor-pointer flex-col items-center gap-2 rounded-2xl border border-dashed border-ink/20 bg-cream/80 px-4 py-6 text-center sm:rounded-3xl sm:px-6 sm:py-8">
         <span className="font-serif text-2xl text-ink">Abre un PDF en el navegador</span>
         <span className="text-sm text-ink/60">No se sube a ningún servidor. Ideal para probar el hojear.</span>
         <input
@@ -38,7 +38,7 @@ export function LocalViewer() {
           onChange={(event) => void onFile(event.target.files?.[0])}
         />
       </label>
-      {error ? <p className="text-sm text-red-700">{error}</p> : null}
+      {error ? <p className="text-sm text-red-400">{error}</p> : null}
       {source ? <PdfFlipBook source={source} title={title} /> : null}
     </div>
   );

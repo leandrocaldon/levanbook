@@ -31,7 +31,7 @@ export default async function ReadPage({
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-xs uppercase tracking-[0.24em] text-ink/45">Lectura</p>
-          <h1 className="font-serif text-4xl text-ink">{book.title}</h1>
+          <h1 className="font-serif text-2xl break-words text-ink sm:text-4xl">{book.title}</h1>
         </div>
         <ShareControls book={book} />
       </div>

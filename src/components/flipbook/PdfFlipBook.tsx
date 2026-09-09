@@ -85,17 +85,21 @@ export function PdfFlipBook({ source, title }: PdfFlipBookProps) {
         const { PageFlip } = await import("page-flip");
         if (cancelled) return;
 
-        const pageWidth = Math.min(460, Math.max(280, stage.clientWidth / 2 - 16));
-        const pageHeight = pageWidth * (aspect.height / aspect.width);
+        const narrow = stage.clientWidth < 640;
+        const pageAspect = aspect.height / aspect.width;
+        const pageWidth = narrow
+          ? Math.max(150, stage.clientWidth - 12)
+          : Math.min(460, Math.max(240, stage.clientWidth / 2 - 16));
+        const pageHeight = pageWidth * pageAspect;
 
         const flip = new PageFlip(host, {
-          width: pageWidth,
-          height: pageHeight,
+          width: Math.round(pageWidth),
+          height: Math.round(pageHeight),
           size: "stretch",
-          minWidth: 240,
-          maxWidth: 560,
-          minHeight: 320,
-          maxHeight: 820,
+          minWidth: narrow ? 140 : 240,
+          maxWidth: narrow ? 420 : 560,
+          minHeight: narrow ? 200 : 320,
+          maxHeight: narrow ? 720 : 820,
           drawShadow: true,
           flippingTime: 700,
           usePortrait: true,
@@ -164,7 +168,7 @@ export function PdfFlipBook({ source, title }: PdfFlipBookProps) {
 
   if (error) {
     return (
-      <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-800">
+      <div className="rounded-2xl border border-red-500/30 bg-red-950/50 px-5 py-4 text-sm text-red-200">
         {error}
       </div>
     );
@@ -172,27 +176,28 @@ export function PdfFlipBook({ source, title }: PdfFlipBookProps) {
 
   return (
     <div className="flex w-full flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-[rgba(255,250,242,0.82)] px-4 py-3 shadow-[0_8px_30px_rgba(46,33,18,0.08)]">
-        <div>
-          <p className="font-serif text-lg text-ink">{title ?? "Documento"}</p>
+      <div className="flex flex-col gap-3 rounded-2xl bg-cream/90 px-3 py-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-4">
+        <div className="min-w-0">
+          <p className="truncate font-serif text-base text-ink sm:text-lg">{title ?? "Documento"}</p>
           <p className="text-xs tracking-wide text-ink/55">
             {ready ? `Página ${current} de ${pageCount}` : status}
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <button type="button" className="toolbar-btn" onClick={() => flipRef.current?.flipPrev()}>
+        <div className="grid grid-cols-3 gap-2 sm:flex sm:items-center">
+          <button type="button" className="toolbar-btn min-h-11 w-full justify-center px-2 text-xs sm:w-auto sm:text-sm" onClick={() => flipRef.current?.flipPrev()}>
             Anterior
           </button>
-          <button type="button" className="toolbar-btn" onClick={() => flipRef.current?.flipNext()}>
+          <button type="button" className="toolbar-btn min-h-11 w-full justify-center px-2 text-xs sm:w-auto sm:text-sm" onClick={() => flipRef.current?.flipNext()}>
             Siguiente
           </button>
-          <button type="button" className="toolbar-btn" onClick={() => void toggleFullscreen()}>
-            Pantalla completa
+          <button type="button" className="toolbar-btn min-h-11 w-full justify-center px-2 text-xs sm:w-auto sm:text-sm" onClick={() => void toggleFullscreen()}>
+            <span className="sm:hidden">Pantalla</span>
+            <span className="hidden sm:inline">Pantalla completa</span>
           </button>
         </div>
       </div>
       <div className="flip-stage">
-        <div ref={stageRef} className="relative mx-auto min-h-[520px] w-full max-w-5xl" />
+        <div ref={stageRef} className="flip-mount" />
       </div>
     </div>
   );

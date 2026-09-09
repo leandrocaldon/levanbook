@@ -23,15 +23,15 @@ export default async function LibraryPage() {
     <section className="flex flex-col gap-8">
       <div>
         <p className="text-xs uppercase tracking-[0.24em] text-ink/45">Tu archivo</p>
-        <h1 className="font-serif text-4xl text-ink">Biblioteca</h1>
+        <h1 className="font-serif text-3xl text-ink sm:text-4xl">Biblioteca</h1>
         <p className="mt-2 text-ink/65">Hola{user.name ? `, ${user.name}` : ""}. Aquí viven tus documentos.</p>
       </div>
       <UploadBook userId={user.id} />
-      {error ? <p className="text-sm text-red-700">{error.message}</p> : null}
+      {error ? <p className="text-sm text-red-400">{error.message}</p> : null}
       {books.length === 0 ? (
         <p className="text-ink/55">Todavía no hay libros. Sube el primero.</p>
       ) : (
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3">
           {books.map((book) => (
             <BookCard key={book.id} book={book} />
           ))}

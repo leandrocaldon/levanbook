@@ -5,7 +5,7 @@ export default function TryPage() {
     <section className="flex flex-col gap-6">
       <div>
         <p className="text-xs uppercase tracking-[0.24em] text-ink/45">Vista previa</p>
-        <h1 className="font-serif text-4xl text-ink">Hojear sin cuenta</h1>
+        <h1 className="font-serif text-3xl text-ink sm:text-4xl">Hojear sin cuenta</h1>
         <p className="mt-2 max-w-xl text-ink/65">
           El archivo no se guarda. Para archivarlo y compartirlo, crea una cuenta.
         </p>

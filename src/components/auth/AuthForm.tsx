@@ -54,7 +54,7 @@ export function AuthForm({ mode }: AuthFormProps) {
           Código
           <input name="otp" inputMode="numeric" maxLength={6} required className="input" />
         </label>
-        {error ? <p className="text-sm text-red-700">{error}</p> : null}
+        {error ? <p className="text-sm text-red-400">{error}</p> : null}
         {notice ? <p className="text-sm text-forest">{notice}</p> : null}
         <button type="submit" className="btn-primary w-full" disabled={pending}>
           {pending ? "Verificando…" : "Verificar y entrar"}
@@ -101,7 +101,7 @@ export function AuthForm({ mode }: AuthFormProps) {
           className="input"
         />
       </label>
-      {error ? <p className="text-sm text-red-700">{error}</p> : null}
+      {error ? <p className="text-sm text-red-400">{error}</p> : null}
       <button type="submit" className="btn-primary w-full" disabled={pending}>
         {pending ? "Un momento…" : mode === "login" ? "Entrar" : "Crear cuenta"}
       </button>
