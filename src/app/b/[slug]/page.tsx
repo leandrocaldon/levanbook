@@ -28,7 +28,7 @@ export default async function PublicBookPage({
         <p className="text-xs uppercase tracking-[0.24em] text-ink/45">Lectura compartida</p>
         <h1 className="font-serif text-2xl break-words text-ink sm:text-4xl">{book.title}</h1>
       </div>
-      <BookViewer storageKey={book.storage_key} title={book.title} />
+      <BookViewer storageKey={book.storage_key} title={book.title} publicSlug={slug} />
     </section>
   );
 }
