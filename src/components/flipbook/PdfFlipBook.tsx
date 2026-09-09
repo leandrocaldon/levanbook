@@ -107,12 +107,19 @@ export function PdfFlipBook({ source, title }: PdfFlipBookProps) {
           autoSize: true,
           maxShadowOpacity: 0.55,
           showCover: true,
-          mobileScrollSupport: true,
+          mobileScrollSupport: narrow,
           useMouseEvents: true,
           showPageCorners: true,
         });
 
         flip.loadFromHTML(nodes);
+        flip.on("changeState", (event) => {
+          if (event.data !== "flipping") return;
+          const index = flip.getCurrentPageIndex() + 1;
+          void paintNearby(index);
+          void paintNearby(index + 1);
+          void paintNearby(index - 1);
+        });
         flip.on("flip", (event) => {
           const next = Number(event.data) + 1;
           setCurrent(next);
@@ -147,14 +154,34 @@ export function PdfFlipBook({ source, title }: PdfFlipBookProps) {
     };
   }, [source, paintNearby]);
 
+  const prefetchAround = useCallback((pageIndex: number) => {
+    void paintNearby(pageIndex);
+    void paintNearby(pageIndex + 1);
+    void paintNearby(pageIndex - 1);
+  }, [paintNearby]);
+
+  const flipNext = useCallback(() => {
+    const flip = flipRef.current;
+    if (!flip) return;
+    prefetchAround(flip.getCurrentPageIndex() + 2);
+    flip.flipNext();
+  }, [prefetchAround]);
+
+  const flipPrev = useCallback(() => {
+    const flip = flipRef.current;
+    if (!flip) return;
+    prefetchAround(flip.getCurrentPageIndex());
+    flip.flipPrev();
+  }, [prefetchAround]);
+
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
-      if (event.key === "ArrowRight") flipRef.current?.flipNext();
-      if (event.key === "ArrowLeft") flipRef.current?.flipPrev();
+      if (event.key === "ArrowRight") flipNext();
+      if (event.key === "ArrowLeft") flipPrev();
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [flipNext, flipPrev]);
 
   async function toggleFullscreen() {
     const node = stageRef.current?.parentElement;
@@ -184,10 +211,10 @@ export function PdfFlipBook({ source, title }: PdfFlipBookProps) {
           </p>
         </div>
         <div className="grid grid-cols-3 gap-2 sm:flex sm:items-center">
-          <button type="button" className="toolbar-btn min-h-11 w-full justify-center px-2 text-xs sm:w-auto sm:text-sm" onClick={() => flipRef.current?.flipPrev()}>
+          <button type="button" className="toolbar-btn min-h-11 w-full justify-center px-2 text-xs sm:w-auto sm:text-sm" onClick={flipPrev}>
             Anterior
           </button>
-          <button type="button" className="toolbar-btn min-h-11 w-full justify-center px-2 text-xs sm:w-auto sm:text-sm" onClick={() => flipRef.current?.flipNext()}>
+          <button type="button" className="toolbar-btn min-h-11 w-full justify-center px-2 text-xs sm:w-auto sm:text-sm" onClick={flipNext}>
             Siguiente
           </button>
           <button type="button" className="toolbar-btn min-h-11 w-full justify-center px-2 text-xs sm:w-auto sm:text-sm" onClick={() => void toggleFullscreen()}>

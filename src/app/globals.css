@@ -97,11 +97,26 @@ body {
   padding: 2.25rem 1.5rem;
   border-radius: 2rem;
   background: #ededed;
+  overflow: hidden;
+  overscroll-behavior: none;
 }
 
 .flip-mount {
   width: 100%;
   max-width: 72rem;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+.flip-host,
+.stf__parent {
+  overflow: hidden !important;
+  overscroll-behavior: none;
+}
+
+.stf__wrapper,
+.stf__block {
+  overflow: hidden;
 }
 
 .flip-page {
