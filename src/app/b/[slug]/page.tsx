@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 import { BookViewer } from "@/components/flipbook/BookViewer";
-import { createInsForgeServerClient } from "@/lib/insforge/server";
+import { createInsForgeAdminClient } from "@/lib/insforge/admin";
 import { getDictionary, getLocale } from "@/lib/i18n";
-import type { Book } from "@/types/book";
+import { isShareSlug } from "@/lib/share";
 
 export default async function PublicBookPage({
   params,
@@ -10,27 +10,26 @@ export default async function PublicBookPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  if (!isShareSlug(slug)) notFound();
+
   const t = getDictionary(await getLocale());
-  const client = await createInsForgeServerClient();
-  const { data, error } = await client.database
+  const admin = createInsForgeAdminClient();
+  const { data, error } = await admin.database
     .from("books")
-    .select(
-      "id, owner_id, title, storage_key, storage_url, cover_key, cover_url, page_count, file_size, share_slug, is_public, created_at",
-    )
+    .select("title")
     .eq("share_slug", slug)
     .eq("is_public", true)
     .maybeSingle();
 
-  if (error || !data) notFound();
-  const book = data as Book;
+  if (error || !data?.title) notFound();
 
   return (
     <section className="flex flex-col gap-5">
       <div>
         <p className="text-xs uppercase tracking-[0.24em] text-ink/45">{t.publicRead.eyebrow}</p>
-        <h1 className="font-serif text-2xl break-words text-ink sm:text-4xl">{book.title}</h1>
+        <h1 className="font-serif text-2xl break-words text-ink sm:text-4xl">{data.title}</h1>
       </div>
-      <BookViewer storageKey={book.storage_key} title={book.title} publicSlug={slug} />
+      <BookViewer title={data.title} publicSlug={slug} />
     </section>
   );
 }

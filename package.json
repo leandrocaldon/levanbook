@@ -2,6 +2,23 @@
   "name": "levanbook",
   "version": "0.1.0",
   "private": true,
+  "description": "Turn PDFs into flipbooks with a personal library and shareable reading links.",
+  "license": "MIT",
+  "author": "LevanSolution",
+  "homepage": "https://github.com/leandrocaldon/levanbook",
+  "bugs": {
+    "url": "https://github.com/leandrocaldon/levanbook/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/leandrocaldon/levanbook.git"
+  },
+  "keywords": [
+    "pdf",
+    "flipbook",
+    "nextjs",
+    "insforge"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",

@@ -22,6 +22,11 @@ export function AuthForm({ mode }: AuthFormProps) {
   const [notice, setNotice] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 
+  function publicAuthError(code: string | null | undefined) {
+    if (code === "AUTH_INVALID") return t.auth.invalidCredentials;
+    return t.auth.genericError;
+  }
+
   async function onSubmit(formData: FormData) {
     setPending(true);
     setError(null);
@@ -36,7 +41,7 @@ export function AuthForm({ mode }: AuthFormProps) {
       setNotice(t.auth.codeNotice);
       return;
     }
-    if (result.error) setError(result.error);
+    if (result.error) setError(publicAuthError(result.error));
   }
 
   async function onVerify(formData: FormData) {
@@ -44,7 +49,7 @@ export function AuthForm({ mode }: AuthFormProps) {
     setError(null);
     const result = await verifyEmailAction(formData);
     setPending(false);
-    if (result?.error) setError(result.error);
+    if (result?.error) setError(publicAuthError(result.error));
   }
 
   if (verifyEmail) {

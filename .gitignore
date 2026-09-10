@@ -23,6 +23,14 @@
 # misc
 .DS_Store
 *.pem
+*.key
+*.p12
+*.pfx
+*.p8
+secrets/
+
+# local env and secrets (keep .env.example)
+.env*.local
 
 # debug
 npm-debug.log*

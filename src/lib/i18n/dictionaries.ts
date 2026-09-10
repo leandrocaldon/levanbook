@@ -89,6 +89,8 @@ export const es = {
     signupLink: "Regístrate",
     hasAccount: "¿Ya tienes cuenta?",
     loginLink: "Entra",
+    invalidCredentials: "Correo o contraseña incorrectos.",
+    genericError: "No se pudo completar la solicitud. Inténtalo de nuevo.",
   },
   upload: {
     title: "Añadir un PDF",
@@ -233,6 +235,8 @@ export const en: Dictionary = {
     signupLink: "Sign up",
     hasAccount: "Already have an account?",
     loginLink: "Log in",
+    invalidCredentials: "Incorrect email or password.",
+    genericError: "The request could not be completed. Try again.",
   },
   upload: {
     title: "Add a PDF",

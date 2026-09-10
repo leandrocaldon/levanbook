@@ -1,36 +1,89 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Levanbook
 
-## Getting Started
+Turn PDFs into a page-turning book. Keep a private library, or share a reading link.
 
-First, run the development server:
+Built with [Next.js](https://nextjs.org/) 16 and [InsForge](https://insforge.dev) (Postgres, auth, and storage).
+
+## Features
+
+- Upload PDFs (up to 100 MB) to a personal library
+- Flip through pages in the browser
+- Try a PDF locally without an account
+- Share a public `/b/[slug]` link; revoke it anytime
+- Spanish / English UI
+
+## Stack
+
+- Next.js App Router, React 19, Tailwind CSS 4
+- `@insforge/sdk` for auth, database, and storage
+- PDF.js + StPageFlip for rendering and page turns
+
+Third-party licenses that ship with the app include [PDF.js](https://github.com/mozilla/pdf.js) (Apache 2.0) via `pdfjs-dist` and `public/pdf.worker.min.mjs`.
+
+## Setup
+
+1. Create an InsForge project and a storage bucket named `books`.
+2. Copy environment variables:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.example .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. Fill `.env.local`:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Variable | Where it runs | Purpose |
+| --- | --- | --- |
+| `NEXT_PUBLIC_INSFORGE_URL` | Browser and server | InsForge API origin |
+| `NEXT_PUBLIC_INSFORGE_ANON_KEY` | Browser | Public anon key. Protect data with RLS, not secrecy. |
+| `NEXT_PUBLIC_APP_URL` | Server | App origin used in auth redirects |
+| `INSFORGE_URL` | Server | Same origin as the public URL, used by the admin client |
+| `INSFORGE_API_KEY` | **Server only** | Admin key. Never put this in `NEXT_PUBLIC_*` or client code. |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Apply SQL in `migrations/` with the InsForge CLI (`db migrations up --all`) so RLS matches this repo.
+5. In InsForge auth settings, add production redirect URLs in addition to the localhost values in `insforge.toml`.
+6. Install and run:
 
-## Learn More
+```bash
+npm install
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+Open [http://localhost:3000](http://localhost:3000).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Security model
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Anonymous visitors **cannot** query `books` or `storage.objects`. Shared reading goes through the server:
 
-## Deploy on Vercel
+1. `/b/[slug]` loads the title with the admin client (server-only).
+2. `/api/public/[slug]/pdf` checks that the slug is public, then streams the PDF.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Owners still upload, list, and download their own files with the authenticated client and owner RLS policies.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Before going live:
+
+- Rotate `INSFORGE_API_KEY` if it may have leaked outside the hosting dashboard.
+- Add rate limiting on `/api/public/*` (Vercel Firewall or Cloudflare). This app does not keep a global in-memory limiter because it would not hold on serverless.
+- See [SECURITY.md](SECURITY.md) for private vulnerability reports.
+
+## Deploy
+
+Vercel (or any Node host) needs **all** of the variables above. `INSFORGE_API_KEY` must be a secret, not a public env var.
+
+```bash
+npm run build
+npm start
+```
+
+## Scripts
+
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Development server |
+| `npm run build` | Production build |
+| `npm run start` | Serve the production build |
+| `npm run lint` | ESLint |
+| `npm run clean` | Delete `.next` cache |
+
+## License
+
+[MIT](LICENSE) © LevanSolution

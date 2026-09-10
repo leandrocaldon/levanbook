@@ -7,12 +7,12 @@ import { PdfFlipBook } from "@/components/flipbook/PdfFlipBook";
 import { useLocale } from "@/components/layout/LocaleProvider";
 
 type BookViewerProps = {
-  storageKey: string;
   title: string;
+  storageKey?: string;
   publicSlug?: string;
 };
 
-export function BookViewer({ storageKey, title, publicSlug }: BookViewerProps) {
+export function BookViewer({ title, storageKey, publicSlug }: BookViewerProps) {
   const { t } = useLocale();
   const [source, setSource] = useState<ArrayBuffer | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -24,11 +24,15 @@ export function BookViewer({ storageKey, title, publicSlug }: BookViewerProps) {
         const response = await fetch(`/api/public/${publicSlug}/pdf`);
         if (!active) return;
         if (!response.ok) {
-          const payload = (await response.json().catch(() => null)) as { error?: string } | null;
-          setError(payload?.error ?? t.viewer.downloadFailed);
+          setError(t.viewer.downloadFailed);
           return;
         }
         setSource(await response.arrayBuffer());
+        return;
+      }
+
+      if (!storageKey) {
+        setError(t.viewer.downloadFailed);
         return;
       }
 
@@ -37,7 +41,7 @@ export function BookViewer({ storageKey, title, publicSlug }: BookViewerProps) {
         .download(storageKey);
       if (!active) return;
       if (downloadError || !data) {
-        setError(downloadError?.message ?? t.viewer.downloadFailed);
+        setError(t.viewer.downloadFailed);
         return;
       }
       setSource(await data.arrayBuffer());
