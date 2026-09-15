@@ -10,7 +10,8 @@ const contentSecurityPolicy = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self'",
-  `connect-src 'self' blob:${insforgeOrigin ? ` ${insforgeOrigin}` : ""}`,
+  // InsForge storage uploads use presigned S3 URLs and downloads use its CDN.
+  `connect-src 'self' blob:${insforgeOrigin ? ` ${insforgeOrigin}` : ""} https://*.amazonaws.com https://cdn.insforge.dev`,
   "worker-src 'self' blob:",
   "frame-ancestors 'none'",
   "base-uri 'self'",
