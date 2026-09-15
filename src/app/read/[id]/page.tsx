@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { BookViewer } from "@/components/flipbook/BookViewer";
+import { DeleteBookButton } from "@/components/library/DeleteBookButton";
 import { ShareControls } from "@/components/library/ShareControls";
 import { createInsForgeServerClient, getCurrentUser } from "@/lib/insforge/server";
 import { getDictionary, getLocale } from "@/lib/i18n";
@@ -35,7 +36,10 @@ export default async function ReadPage({
           <p className="text-xs uppercase tracking-[0.24em] text-ink/45">{t.read.eyebrow}</p>
           <h1 className="font-serif text-2xl break-words text-ink sm:text-4xl">{book.title}</h1>
         </div>
-        <ShareControls book={book} />
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
+          <ShareControls book={book} />
+          <DeleteBookButton book={book} afterDelete="library" variant="toolbar" />
+        </div>
       </div>
       <BookViewer storageKey={book.storage_key} title={book.title} />
     </section>

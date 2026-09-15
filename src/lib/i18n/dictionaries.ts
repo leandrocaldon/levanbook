@@ -118,6 +118,14 @@ export const es = {
     share: "Compartir",
     revoke: "Revocar enlace",
   },
+  delete: {
+    action: "Borrar",
+    deleting: "Borrando…",
+    failed: "No se pudo borrar el documento.",
+    confirm: (title: string) => `¿Borrar «${title}»? Se elimina el PDF y deja de estar en tu biblioteca.`,
+    clearAll: "Vaciar biblioteca",
+    confirmAll: "¿Borrar todos los documentos de tu biblioteca? Esta acción no se puede deshacer.",
+  },
   bookCard: {
     pages: (count: number) => `${count} páginas`,
     public: " · Público",
@@ -263,6 +271,14 @@ export const en: Dictionary = {
     creating: "Creating link…",
     share: "Share",
     revoke: "Revoke link",
+  },
+  delete: {
+    action: "Delete",
+    deleting: "Deleting…",
+    failed: "Could not delete the document.",
+    confirm: (title: string) => `Delete “${title}”? The PDF will be removed from your library.`,
+    clearAll: "Clear library",
+    confirmAll: "Delete every document in your library? This cannot be undone.",
   },
   bookCard: {
     pages: (count: number) => `${count} pages`,

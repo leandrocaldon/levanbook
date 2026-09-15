@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { BookCard } from "@/components/library/BookCard";
+import { ClearLibraryButton } from "@/components/library/ClearLibraryButton";
 import { UploadBook } from "@/components/library/UploadBook";
 import { createInsForgeServerClient, getCurrentUser } from "@/lib/insforge/server";
 import { getDictionary, getLocale } from "@/lib/i18n";
@@ -29,6 +30,7 @@ export default async function LibraryPage() {
         <p className="mt-2 text-ink/65">{t.library.greeting(user.name)}</p>
       </div>
       <UploadBook userId={user.id} />
+      {books.length > 0 ? <ClearLibraryButton books={books} /> : null}
       {error ? <p className="text-sm text-red-400">{error.message}</p> : null}
       {books.length === 0 ? (
         <p className="text-ink/55">{t.library.empty}</p>
